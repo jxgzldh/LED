@@ -1,3 +1,8 @@
+---
+header-includes: |
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+---
 ### CIE1931CIE1960
 CIE1931色品坐标转化为CIE1960色品坐标的式子如下：
 $$u=\frac {4x}{-2x+12y+3},v=\frac {6y}{-2x+12y+3}$$
@@ -442,9 +447,11 @@ while True:
 用叉积法判断点 $(x, y)$ 是否在三角形内部：  
 
 $$
+\begin{cases}
 \text{sign}_1 = (x_{380} - x_w)(y - y_w) - (y_{380} - y_w)(x - x_w), \\
 \text{sign}_2 = (x_{780} - x_{380})(y - y_{380}) - (y_{780} - y_{380})(x - x_{380}), \\
-\text{sign}_3 = (x_w - x_{780})(y - y_{780}) - (y_w - y_{780})(x - x_{780}).
+\text{sign}_3 = (x_w - x_{780})(y - y_{780}) - (y_w - y_{780})(x - x_{780})
+\end{cases}
 $$ 
 
 若 $\text{sign}_1, \text{sign}_2, \text{sign}_3$ 同号，则点在三角形内，对应补色波长；否则对应主波长。
