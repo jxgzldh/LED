@@ -106,7 +106,7 @@ $$
        Z = \quad \sum_{i=380}^{780} M(\lambda_i, T) \cdot \overline{z}(\lambda_i) \, \Delta\lambda
 $$
 
-其中$\Delta\lambda$可以是1nm，5nm，但计算时单位是m
+其中 $\Delta\lambda$ 可以是1nm，5nm，但计算时单位是m
 - 转换为 \( xy \) 坐标：
 - 
 $$
@@ -169,29 +169,25 @@ print(f"T={cct}K的色坐标 (x, y) = ({x:.10f}, {y:.10f})")
 1. **将色坐标转换为均匀色空间（如CIE 1960 UCS）：**
    - 从 \( xy \) 转换为 \( uv \)：
      
-    $
-     u = \frac{4x}{-2x + 12y + 3}, \quad v = \frac{6y}{-2x + 12y + 3}
-    $
+    $u = \frac{4x}{-2x + 12y + 3}, \quad v = \frac{6y}{-2x + 12y + 3}$
    
-1. **数值迭代法（牛顿法）求解CCT：**
-   - 目标：找到使黑体轨迹上点 \( (u(T), v(T)) \) 到目标点 $u_{\text{target}},v_{\text{target}} $距离最小的 \( T \)。
+2. **数值迭代法（牛顿法）求解CCT：**
+   - 目标：找到使黑体轨迹上点 \( (u(T), v(T)) \) 到目标点 $u_{\text{target}},v_{\text{target}}$ 距离最小的 \( T \)。
    - 构造方程（正交条件）：
-   - 
-     $$
-     (u(T) - u_{\text{target}}) \cdot \frac{du}{dT} + (v(T) - v_{\text{target}}) \cdot \frac{dv}{dT} = 0
-     $$
+   
+     $(u(T) - u_{\text{target}}) \cdot \frac{du}{dT} + (v(T) - v_{\text{target}}) \cdot \frac{dv}{dT} = 0$
 
-   - 通过牛顿迭代更新 $T$：
+   - 通过牛顿迭代更新 $T$ ：
      
-$$
-     T_{n+1} = T_n - \frac{f(T_n)}{f'(T_n)}
-$$
+$$T_{n+1} = T_n - \frac{f(T_n)}{f'(T_n)}$$
 
 其中 $f(T)$ 为上述正交条件方程。
 1. **近似公式（McCamy公式，适用于3000K–10000K）：**
-从$xy$直接计算：
+从 $xy$ 直接计算：
 
-$$n = \frac{x - 0.3320}{0.1858 - y}, \quad CCT = 449n^3 + 3525n^2 + 6823.3n + 5520.33$$
+$$
+n = \frac{x - 0.3320}{0.1858 - y}, \quad CCT = 449n^3 + 3525n^2 + 6823.3n + 5520.33
+$$
 
 写成python函数如下：
 ```python
@@ -298,39 +294,35 @@ print(f"CCT = {cct:.4f}K, Duv = {duv:.4f}")
 - **计算黑体在Tc下的CIE 1931色坐标(x₀, y₀)**  
    使用普朗克公式计算黑体在温度Tc下的光谱辐射分布，积分得到三刺激值XYZ，再转换为CIE 1931色坐标：
   
-   $$
-   x₀ = \frac{X}{X+Y+Z}, \quad y₀ = \frac{Y}{X+Y+Z}
-   $$
+   $x₀ = \frac{X}{X+Y+Z}, \quad y₀ = \frac{Y}{X+Y+Z}$
 
 - **转换为CIE 1960 UCS坐标(u₀, v₀)**  
    CIE 1960 UCS均匀色空间坐标的转换公式为：
   
-   $$
-   u₀ = \frac{4x₀}{-2x₀ + 12y₀ + 3}, \quad v₀ = \frac{6y₀}{-2x₀ + 12y₀ + 3}
-$$
+   $u₀ = \frac{4x₀}{-2x₀ + 12y₀ + 3}, \quad v₀ = \frac{6y₀}{-2x₀ + 12y₀ + 3}$
 
 **步骤2：计算黑体轨迹在(u₀, v₀)处的法线方向**
 + **获取黑体轨迹的切线方向**  
    对黑体轨迹参数化（例如以色温T为参数），计算其导数得到切线方向。  
-	1. **数值方法**：选取邻近色温点（如T ± ΔT），计算对应(u₁, v₁)和(u₂, v₂)，则切线方向近似为：
+1.**数值方法**：选取邻近色温点（如T ± ΔT），计算对应(u₁, v₁)和(u₂, v₂)，则切线方向近似为：
 
-$$\text{切线向量} = (u₂ - u₁, v₂ - v₁)$$
+$$
+\text{切线向量} = (u₂ - u₁, v₂ - v₁)
+$$
 	
- 	2. **法线方向**：切线向量的垂直方向（交换分量并取反），归一化为单位向量：
+2. **法线方向**：切线向量的垂直方向（交换分量并取反），归一化为单位向量：
   
-$$\text{法线单位向量} = \frac{(- (v₂ - v₁), u₂ - u₁)}{\sqrt{(v₂ - v₁)^2 + (u₂ - u₁)^2}}$$
+$$
+\text{法线单位向量} = \frac{(- (v₂ - v₁), u₂ - u₁)}{\sqrt{(v₂ - v₁)^2 + (u₂ - u₁)^2}}
+$$
 
  **步骤3：沿法线方向应用Duv偏移**
 -  **计算偏移后的(u', v')**  
    根据Duv的正负号沿法线方向移动：
    
-   $$
-   u' = u₀ + \text{Duv} \cdot \text{法线单位向量的u分量}
-   $$
+   $u' = u₀ + \text{Duv} \cdot \text{法线单位向量的u分量}$
    
-   $$
-   v' = v₀ + \text{Duv} \cdot \text{法线单位向量的v分量}
-   $$
+   $v' = v₀ + \text{Duv} \cdot \text{法线单位向量的v分量}$
    
    **注意**：Duv的正负约定需与标准一致（通常正Duv表示色度点位于黑体轨迹外侧）。
 
@@ -338,9 +330,7 @@ $$\text{法线单位向量} = \frac{(- (v₂ - v₁), u₂ - u₁)}{\sqrt{(v₂ 
 - **逆转换公式**  
    从CIE 1960 UCS回到CIE 1931的转换公式为：
   
-   $$
-   x = \frac{3u'}{2u' - 8v' + 4}, \quad y = \frac{2v'}{2u' - 8v' + 4}
-$$
+   $x = \frac{3u'}{2u' - 8v' + 4}, \quad y = \frac{2v'}{2u' - 8v' + 4}$
 
 转化为python程序
 ```python
@@ -448,15 +438,13 @@ while True:
 ```
 ### 由(x,y)转换为(主波长或补色波长,色纯度)
 ##### 1 **点是否在三角形内**  
-设三角形顶点为白点 $(x_w, y_w)$、380nm 点 $(x_{380}, y_{380})$、780nm 点 $(x_{780}, y_{780})$。  
+设三角形顶点为白点 $(x_w, y_w)$ 、380nm 点 $(x_{380}, y_{380})$ 、780nm 点 $(x_{780}, y_{780})$ 。  
 用叉积法判断点 $(x, y)$ 是否在三角形内部：  
 
 $$
-\begin{cases}
 \text{sign}_1 = (x_{380} - x_w)(y - y_w) - (y_{380} - y_w)(x - x_w), \\
 \text{sign}_2 = (x_{780} - x_{380})(y - y_{380}) - (y_{780} - y_{380})(x - x_{380}), \\
 \text{sign}_3 = (x_w - x_{780})(y - y_{780}) - (y_w - y_{780})(x - x_{780}).
-\end{cases}
 $$ 
 
 若 $\text{sign}_1, \text{sign}_2, \text{sign}_3$ 同号，则点在三角形内，对应补色波长；否则对应主波长。
@@ -482,9 +470,7 @@ $$
 - **波长符号**：$\lambda_{\text{comp}} = -\lambda$。
 - **纯度公式**：
     
-  $$
-  p = \min\left( \frac{\|\overrightarrow{wp}\|}{\|\overrightarrow{w\lambda}\|}, \ 1 \right),
-  $$
+  $p = \min\left( \frac{\|\overrightarrow{wp}\|}{\|\overrightarrow{w\lambda}\|}, \ 1 \right),$
 
   其中 $\overrightarrow{w\lambda}$ 是白点到光谱轨迹点的向量。  
 - **数值稳定性**：若 $\|\overrightarrow{w\lambda}\| < \epsilon$（如 $\epsilon = 10^{-10}$），则设 $p = 0$。  
@@ -616,25 +602,19 @@ while True:
 ### 由(主波长或补色波长,色纯度)转化为(x,y)
 - **光谱轨迹点**：设白点为 $(x_w, y_w)$，波长 $\lambda$ 对应的光谱轨迹点为 $(x_\lambda, y_\lambda)$。  
 - **方向与缩放**：  
-  - **主波长（$\lambda \geq 0$）**：  
+  - **主波长（ $ \lambda \geq 0$ ）**：  
     从白点沿方向 $\overrightarrow{w\lambda} = (x_\lambda - x_w, y_\lambda - y_w)$ 按比例 $p$ 移动：  
 
-     $$
-    x = x_w + p(x_\lambda - x_w), \quad y = y_w + p(y_\lambda - y_w)
-    $$
+    $x = x_w + p(x_\lambda - x_w), \quad y = y_w + p(y_\lambda - y_w)$
     
-  - **补色波长（$\lambda < 0$）**：  
+  - **补色波长（ $ \lambda < 0$ ）**：  
     取绝对值波长 $|\lambda|$ 对应的光谱点 $(x_{|\lambda|}, y_{|\lambda|})$，从白点沿反方向 $\overrightarrow{\lambda w} = (x_w - x_{|\lambda|}, y_w - y_{|\lambda|})$ 按比例 $p$ 移动：  
 
-    $$
-    x = x_w - p(x_{|\lambda|} - x_w), \quad y = y_w - p(y_{|\lambda|} - y_w)
-    $$
+    $x = x_w - p(x_{|\lambda|} - x_w), \quad y = y_w - p(y_{|\lambda|} - y_w)$
     
 - **约束条件**：  
 
-  $$
-  x = \text{clip}(x, 0, 1), \quad y = \text{clip}(y, 0, 1)
-  $$
+  $x = \text{clip}(x, 0, 1), \quad y = \text{clip}(y, 0, 1)$
   
 由python实现如下：
 ```python
