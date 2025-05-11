@@ -1,7 +1,7 @@
----
+
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
----
+
 ### CIE1931CIE1960
 CIE1931色品坐标转化为CIE1960色品坐标的式子如下：
 $$u=\frac {4x}{-2x+12y+3},v=\frac {6y}{-2x+12y+3}$$
