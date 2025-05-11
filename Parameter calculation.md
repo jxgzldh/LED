@@ -27,7 +27,7 @@ def xy_to_udvd(x, y):
 ### 由色温求黑体曲线上的坐标
   #### 方法一：近似公式(CIE1960UCS)
   该方法精度不高，误差大，不建议使用。
-  计算$d=\frac{10^8}{T}$
+  计算 $d=\frac{10^8}{T}$
 $若 T \leq 7000 \, \text{K} ：$
 $$u = \frac{0.860117757 + 1.54118254 \times 10^{-4}d + 1.28641212 \times 10^{-7}d^2}{1 + 8.42420235 \times 10^{-4}d + 7.08145163 \times 10^{-7}d^2}$$
 $$v = \frac{0.317398726 + 4.22806245 \times 10^{-5}d + 4.20481691 \times 10^{-8}d^2}{1 - 2.89741816 \times 10^{-5}d + 1.61456053 \times 10^{-7}d^2}$$
@@ -65,11 +65,11 @@ print(f"T=6500K的黑体色坐标 (x, y) = ({x:.4f}, {y:.4f})")
 #### 方法二:普朗克公式积分法
 该方法精度高，但计算量大。
 - **普朗克辐射公式**：黑体辐射的光谱分布辐射出射度形式为：
-$$
-  M(\lambda, T) = \frac{2hc^2}{\lambda^5} \cdot \frac{1}{e^{hc/(\lambda k T)} - 1}
-$$
+  
+$$M(\lambda, T) = \frac{2hc^2}{\lambda^5} \cdot \frac{1}{e^{hc/(\lambda k T)} - 1}$$
+
 描述单位波长间隔（m）内的辐射出射度
-(单位：$\text{W} \cdot \text{m}^{-2} \cdot \text{m}^{-1}$)
+(单位： $\text{W} \cdot \text{m}^{-2} \cdot \text{m}^{-1}$)
   其中：
   - $\lambda$ 为波长
   - $T$ 为色温
@@ -77,32 +77,42 @@ $$
   - $c = 299792458\text{m/s}$为真空中的光速
   - $k_B = 1.380649\times10^{-23}\, \text{J/K}$为玻尔兹曼常数
   - **适用场景**：实验测量中常用，因为光谱仪通常以波长标定（如可见光、红外波段）。
-- **色坐标计算**：需对 $M(\lambda, T)$在可见光波段（380–780nm）积分，结合CIE 1931色匹配函数$\overline{x}(\lambda), \overline{y}(\lambda), \overline{z}(\lambda)，计算三刺激值X, Y, Z$。
+- **色坐标计算**：需对 $M(\lambda, T)$在可见光波段（380–780nm）积分，结合CIE 1931色匹配函数 $\overline{x}(\lambda), \overline{y}(\lambda), \overline{z}(\lambda)，计算三刺激值X, Y, Z $。
 - 积分计算三刺激值 \( X, Y, Z \)：
+  
 $$
        X = \int_{380}^{780} M(\lambda, T) \cdot \overline{x}(\lambda) \, d\lambda
 $$
+
 $$
        Y = \int_{380}^{780} M(\lambda, T) \cdot \overline{y}(\lambda) \, d\lambda
 $$
+
 $$
        Z = \int_{380}^{780} M(\lambda, T) \cdot \overline{z}(\lambda) \, d\lambda
 $$
+
 但是一般使用上述积分公式的求和形式近似计算三刺激值。
+
 $$
        X = \quad \sum_{i=380}^{780} M(\lambda_i, T) \cdot \overline{x}(\lambda_i) \, \Delta\lambda
 $$
+
 $$
        Y = \quad \sum_{i=380}^{780} M(\lambda_i, T) \cdot \overline{y}(\lambda_i) \, \Delta\lambda
 $$
+
 $$
        Z = \quad \sum_{i=380}^{780} M(\lambda_i, T) \cdot \overline{z}(\lambda_i) \, \Delta\lambda
 $$
+
 其中$\Delta\lambda$可以是1nm，5nm，但计算时单位是m
 - 转换为 \( xy \) 坐标：
+- 
 $$
        x = \frac{X}{X+Y+Z}, \quad y = \frac{Y}{X+Y+Z}
 $$
+
 **波长范围选择**：
 - **常规范围**：380–780nm（可见光），步长1nm或5nm（CIE标准数据间隔）。
 - **低温扩展**：对低温（如2700K），黑体辐射峰值在红外区（约1070nm），需扩展波长至2500nm（但色匹配函数在780nm外为0）。
@@ -158,23 +168,31 @@ print(f"T={cct}K的色坐标 (x, y) = ({x:.10f}, {y:.10f})")
 ### 由色坐标求相关色温
 1. **将色坐标转换为均匀色空间（如CIE 1960 UCS）：**
    - 从 \( xy \) 转换为 \( uv \)：
+     
     $
      u = \frac{4x}{-2x + 12y + 3}, \quad v = \frac{6y}{-2x + 12y + 3}
     $
+   
 1. **数值迭代法（牛顿法）求解CCT：**
-   - 目标：找到使黑体轨迹上点 \( (u(T), v(T)) \) 到目标点 $u_{\text{target}},v_{\text{target}}$距离最小的 \( T \)。
+   - 目标：找到使黑体轨迹上点 \( (u(T), v(T)) \) 到目标点 $u_{\text{target}},v_{\text{target}} $距离最小的 \( T \)。
    - 构造方程（正交条件）：
-    $$
+   - 
+     $$
      (u(T) - u_{\text{target}}) \cdot \frac{du}{dT} + (v(T) - v_{\text{target}}) \cdot \frac{dv}{dT} = 0
-$$
+     $$
+
    - 通过牛顿迭代更新 $T$：
+     
 $$
      T_{n+1} = T_n - \frac{f(T_n)}{f'(T_n)}
 $$
+
 其中 $f(T)$ 为上述正交条件方程。
 1. **近似公式（McCamy公式，适用于3000K–10000K）：**
 从$xy$直接计算：
-$n = \frac{x - 0.3320}{0.1858 - y}, \quad CCT = 449n^3 + 3525n^2 + 6823.3n + 5520.33$
+
+$$n = \frac{x - 0.3320}{0.1858 - y}, \quad CCT = 449n^3 + 3525n^2 + 6823.3n + 5520.33$$
+
 写成python函数如下：
 ```python
 import numpy as np
@@ -279,40 +297,51 @@ print(f"CCT = {cct:.4f}K, Duv = {duv:.4f}")
 **步骤1：确定黑体轨迹上的基础点（Tc对应的(u₀, v₀)）**
 - **计算黑体在Tc下的CIE 1931色坐标(x₀, y₀)**  
    使用普朗克公式计算黑体在温度Tc下的光谱辐射分布，积分得到三刺激值XYZ，再转换为CIE 1931色坐标：
+  
    $$
    x₀ = \frac{X}{X+Y+Z}, \quad y₀ = \frac{Y}{X+Y+Z}
    $$
 
 - **转换为CIE 1960 UCS坐标(u₀, v₀)**  
    CIE 1960 UCS均匀色空间坐标的转换公式为：
+  
    $$
    u₀ = \frac{4x₀}{-2x₀ + 12y₀ + 3}, \quad v₀ = \frac{6y₀}{-2x₀ + 12y₀ + 3}
 $$
+
 **步骤2：计算黑体轨迹在(u₀, v₀)处的法线方向**
 + **获取黑体轨迹的切线方向**  
    对黑体轨迹参数化（例如以色温T为参数），计算其导数得到切线方向。  
 	1. **数值方法**：选取邻近色温点（如T ± ΔT），计算对应(u₁, v₁)和(u₂, v₂)，则切线方向近似为：
+
 $$\text{切线向量} = (u₂ - u₁, v₂ - v₁)$$
-	2. **法线方向**：切线向量的垂直方向（交换分量并取反），归一化为单位向量：
+	
+ 	2. **法线方向**：切线向量的垂直方向（交换分量并取反），归一化为单位向量：
+  
 $$\text{法线单位向量} = \frac{(- (v₂ - v₁), u₂ - u₁)}{\sqrt{(v₂ - v₁)^2 + (u₂ - u₁)^2}}$$
 
  **步骤3：沿法线方向应用Duv偏移**
 -  **计算偏移后的(u', v')**  
    根据Duv的正负号沿法线方向移动：
+   
    $$
    u' = u₀ + \text{Duv} \cdot \text{法线单位向量的u分量}
    $$
+   
    $$
    v' = v₀ + \text{Duv} \cdot \text{法线单位向量的v分量}
    $$
+   
    **注意**：Duv的正负约定需与标准一致（通常正Duv表示色度点位于黑体轨迹外侧）。
 
 **步骤4：将(u', v')转换为CIE 1931色坐标(x, y)**
 - **逆转换公式**  
    从CIE 1960 UCS回到CIE 1931的转换公式为：
+  
    $$
    x = \frac{3u'}{2u' - 8v' + 4}, \quad y = \frac{2v'}{2u' - 8v' + 4}
 $$
+
 转化为python程序
 ```python
 import numpy as np
@@ -421,6 +450,7 @@ while True:
 ##### 1 **点是否在三角形内**  
 设三角形顶点为白点 $(x_w, y_w)$、380nm 点 $(x_{380}, y_{380})$、780nm 点 $(x_{780}, y_{780})$。  
 用叉积法判断点 $(x, y)$ 是否在三角形内部：  
+
 $$
 \begin{cases}
 \text{sign}_1 = (x_{380} - x_w)(y - y_w) - (y_{380} - y_w)(x - x_w), \\
@@ -428,17 +458,21 @@ $$
 \text{sign}_3 = (x_w - x_{780})(y - y_{780}) - (y_w - y_{780})(x - x_{780}).
 \end{cases}
 $$ 
+
 若 $\text{sign}_1, \text{sign}_2, \text{sign}_3$ 同号，则点在三角形内，对应补色波长；否则对应主波长。
 
 ##### 2 **主波长计算**  
 - **方向向量**：$\vec{d} = (x - x_w, y - y_w)$。  
-- **投影参数**：对光谱轨迹点 $(x_\lambda, y_\lambda)$，计算投影参数：  
+- **投影参数**：对光谱轨迹点 $(x_\lambda, y_\lambda)$，计算投影参数：
+  
   $$
   t = \frac{(x_\lambda - x_w)(x - x_w) + (y_\lambda - y_w)(y - y_w)}{\|\vec{d}\|^2}, \quad \text{保留 } t \geq 0.
-  $$ 
+  $$
+   
 - **投影点**：$(x_p, y_p) = (x_w + t(x - x_w), y_w + t(y - y_w))$。  
 - **最小距离**：找到使 $\Delta^2 = (x_p - x_\lambda)^2 + (y_p - y_\lambda)^2$ 最小的 $\lambda$。  
-- **纯度**：  
+- **纯度**：
+    
   $$
   p = \min\left( \frac{\sqrt{(x - x_w)^2 + (y - y_w)^2}}{\sqrt{(x_\lambda - x_w)^2 + (y_\lambda - y_w)^2}}, \ 1 \right)
   $$ 
@@ -446,10 +480,12 @@ $$
 ##### 3 **补色波长计算**  
 - **反向投影**：方向向量取 $\vec{d}' = (x_w - x, y_w - y)$，其余步骤与主波长相同。  
 - **波长符号**：$\lambda_{\text{comp}} = -\lambda$。
-- **纯度公式**：  
+- **纯度公式**：
+    
   $$
   p = \min\left( \frac{\|\overrightarrow{wp}\|}{\|\overrightarrow{w\lambda}\|}, \ 1 \right),
   $$
+
   其中 $\overrightarrow{w\lambda}$ 是白点到光谱轨迹点的向量。  
 - **数值稳定性**：若 $\|\overrightarrow{w\lambda}\| < \epsilon$（如 $\epsilon = 10^{-10}$），则设 $p = 0$。  
 由python实现如下
@@ -582,18 +618,24 @@ while True:
 - **方向与缩放**：  
   - **主波长（$\lambda \geq 0$）**：  
     从白点沿方向 $\overrightarrow{w\lambda} = (x_\lambda - x_w, y_\lambda - y_w)$ 按比例 $p$ 移动：  
-    $$
+
+     $$
     x = x_w + p(x_\lambda - x_w), \quad y = y_w + p(y_\lambda - y_w)
     $$
+    
   - **补色波长（$\lambda < 0$）**：  
     取绝对值波长 $|\lambda|$ 对应的光谱点 $(x_{|\lambda|}, y_{|\lambda|})$，从白点沿反方向 $\overrightarrow{\lambda w} = (x_w - x_{|\lambda|}, y_w - y_{|\lambda|})$ 按比例 $p$ 移动：  
+
     $$
     x = x_w - p(x_{|\lambda|} - x_w), \quad y = y_w - p(y_{|\lambda|} - y_w)
     $$
+    
 - **约束条件**：  
+
   $$
   x = \text{clip}(x, 0, 1), \quad y = \text{clip}(y, 0, 1)
   $$
+  
 由python实现如下：
 ```python
 import numpy as np
